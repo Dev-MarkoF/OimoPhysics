@@ -6,8 +6,8 @@ A lightweight 3D physics engine.
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg) 
 
 ## INFO
-**This is as special forked version of OimoPhysics, that is adapted to suit the needs of the <a href="https://github.com/JirkaDellOro/FUDGE">FUDGE</a> Project.**
-
+**This is as special forked version of OimoPhysics, that is adapted to suit the needs of the <a href="https://github.com/JirkaDellOro/FUDGE">FUDGE</a> Project.** 
+This can result in very niche changes, like supporting old ways of javascript moduling etc.
 I'm adding only what is needed by that project and if the original creator decides to update i try to merge those changes into this.
 
 The fork is continuing the work of adapting to Haxe 4.0 and is compiled with Haxe 4.1.5. 
