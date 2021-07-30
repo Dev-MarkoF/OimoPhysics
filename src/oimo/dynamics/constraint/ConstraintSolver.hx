@@ -1,4 +1,5 @@
 package oimo.dynamics.constraint;
+
 import oimo.dynamics.TimeStep;
 import oimo.dynamics.rigidbody.RigidBody;
 import oimo.dynamics.*;
@@ -24,27 +25,23 @@ class ConstraintSolver {
 	 * Prepares for velocity iteration. Time step information `timeStep` is given for
 	 * computing time-depending data.
 	 */
-	public function preSolveVelocity(timeStep:TimeStep):Void {
-	}
+	public function preSolveVelocity(timeStep:TimeStep):Void {}
 
 	/**
 	 * Applies initial impulses.
 	 */
-	public function warmStart(timeStep:TimeStep):Void {
-	}
+	public function warmStart(timeStep:TimeStep):Void {}
 
 	/**
 	 * Performs single velocity iteration.
 	 */
-	public function solveVelocity():Void {
-	}
+	public function solveVelocity():Void {}
 
 	/**
 	 * Performs post-processes of velocity part. Time step information `timeStep` is given
 	 * for computing time-depending data.
 	 */
-	public function postSolveVelocity(timeStep:TimeStep):Void {
-	}
+	public function postSolveVelocity(timeStep:TimeStep):Void {}
 
 	/**
 	 * Prepares for position iteration (split impulse or nonlinear Gauss-Seidel). Time step
@@ -52,24 +49,20 @@ class ConstraintSolver {
 	 *
 	 * This may not be called depending on position correction algorithm.
 	 */
-	public function preSolvePosition(timeStep:TimeStep):Void {
-	}
+	public function preSolvePosition(timeStep:TimeStep):Void {}
 
 	/**
 	 * Performs single position iteration (split impulse)
 	 */
-	public function solvePositionSplitImpulse():Void {
-	}
+	public function solvePositionSplitImpulse():Void {}
 
 	/**
 	 * Performs single position iteration (nonlinear Gauss-Seidel)
 	 */
-	public function solvePositionNgs(timeStep:TimeStep):Void {
-	}
+	public function solvePositionNgs(timeStep:TimeStep):Void {}
 
 	/**
 	 * Performs post-processes.
 	 */
-	public function postSolve():Void {
-	}
+	public function postSolve():Void {}
 }

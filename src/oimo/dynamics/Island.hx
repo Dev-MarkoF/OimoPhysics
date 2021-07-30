@@ -1,4 +1,5 @@
 package oimo.dynamics;
+
 import haxe.ds.Vector;
 import oimo.common.Setting;
 import oimo.common.Vec3;
@@ -43,22 +44,19 @@ class Island {
 
 	// --- private ---
 
-	@:extern
-	inline function fastInvExp(x:Float):Float {
+	extern inline function fastInvExp(x:Float):Float {
 		var x2:Float = x * x;
 		return 1 / (1 + x + x2 * (1 / 2 + x * (1 / 6) + x2 * (1 / 24)));
 	}
 
-	@:extern
-	inline function addConstraintSolverSI(solver:ConstraintSolver):Void {
+	extern inline function addConstraintSolverSI(solver:ConstraintSolver):Void {
 		if (numSolversSi == solversSi.length) {
 			M.array_expand(solversSi, numSolversSi);
 		}
 		solversSi[numSolversSi++] = solver;
 	}
 
-	@:extern
-	inline function addConstraintSolverNgs(solver:ConstraintSolver):Void {
+	extern inline function addConstraintSolverNgs(solver:ConstraintSolver):Void {
 		if (numSolversNgs == solversNgs.length) {
 			M.array_expand(solversNgs, numSolversNgs);
 		}
@@ -74,8 +72,7 @@ class Island {
 		M.array_free(solversNgs, numSolversNgs);
 	}
 
-	@:extern
-	public inline function _setGravity(gravity:Vec3):Void {
+	extern public inline function _setGravity(gravity:Vec3):Void {
 		M.vec3_fromVec3(this.gravity, gravity);
 	}
 
@@ -108,6 +105,10 @@ class Island {
 
 		// store previous transform
 		M.transform_assign(rb._ptransform, rb._transform);
+
+		// clear linear/angular contact impulse
+		M.vec3_zero(rb._linearContactImpulse);
+		M.vec3_zero(rb._angularContactImpulse);
 
 		// update sleep time
 		if (rb._isSleepy()) {
@@ -157,6 +158,10 @@ class Island {
 			// store previous transform
 			M.transform_assign(rb._ptransform, rb._transform);
 
+			// clear linear/angular contact impulse
+			M.vec3_zero(rb._linearContactImpulse);
+			M.vec3_zero(rb._angularContactImpulse);
+
 			// don't let the rigid body sleep
 			rb._sleeping = false;
 
@@ -203,33 +208,32 @@ class Island {
 			return;
 		}
 
-
 		// -------------- test --------------
 
 		/*
-		// randomize constraint order
+			// randomize constraint order
 
-		for (i in 1...numSolvers) {
-			var j = Std.int(Math.random() * (i + 1));
-			var tmp = solvers[i];
-			solvers[i] = solvers[j];
-			solvers[j] = tmp;
-		}
+			for (i in 1...numSolvers) {
+				var j = Std.int(Math.random() * (i + 1));
+				var tmp = solvers[i];
+				solvers[i] = solvers[j];
+				solvers[j] = tmp;
+			}
 
-		for (i in 1...numSolversSi) {
-			var j = Std.int(Math.random() * (i + 1));
-			var tmp = solversSi[i];
-			solversSi[i] = solversSi[j];
-			solversSi[j] = tmp;
-		}
+			for (i in 1...numSolversSi) {
+				var j = Std.int(Math.random() * (i + 1));
+				var tmp = solversSi[i];
+				solversSi[i] = solversSi[j];
+				solversSi[j] = tmp;
+			}
 
-		for (i in 1...numSolversNgs) {
-			var j = Std.int(Math.random() * (i + 1));
-			var tmp = solversNgs[i];
-			solversNgs[i] = solversNgs[j];
-			solversNgs[j] = tmp;
-		}
-		*/
+			for (i in 1...numSolversNgs) {
+				var j = Std.int(Math.random() * (i + 1));
+				var tmp = solversNgs[i];
+				solversNgs[i] = solversNgs[j];
+				solversNgs[j] = tmp;
+			}
+		 */
 
 		// -------------- test --------------
 
@@ -303,5 +307,4 @@ class Island {
 			rb._syncShapes();
 		}
 	}
-
 }

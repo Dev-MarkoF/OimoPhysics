@@ -1,4 +1,5 @@
 package oimo.dynamics;
+
 import oimo.collision.narrowphase.*;
 import oimo.collision.narrowphase.detector.*;
 import oimo.common.Setting;
@@ -42,6 +43,8 @@ class Contact {
 	public var _contactConstraint:ContactConstraint;
 	public var _touching:Bool;
 
+	public var _triggering:Bool;
+
 	@:dox(hide)
 	public function new() {
 		_next = null;
@@ -70,8 +73,7 @@ class Contact {
 
 	// --- private ---
 
-	@:extern
-	inline function attachLinks():Void {
+	extern inline function attachLinks():Void {
 		M.list_push(_b1._contactLinkList, _b1._contactLinkListLast, _prev, _next, _link1);
 		M.list_push(_b2._contactLinkList, _b2._contactLinkListLast, _prev, _next, _link2);
 		_b1._numContactLinks++;
@@ -82,8 +84,7 @@ class Contact {
 		_link2._contact = this;
 	}
 
-	@:extern
-	inline function detachLinks():Void {
+	extern inline function detachLinks():Void {
 		M.list_remove(_b1._contactLinkList, _b1._contactLinkListLast, _prev, _next, _link1);
 		M.list_remove(_b2._contactLinkList, _b2._contactLinkListLast, _prev, _next, _link2);
 		_b1._numContactLinks--;
@@ -94,54 +95,82 @@ class Contact {
 		_link2._contact = null;
 	}
 
-	@:extern
-	inline function sendBeginContact():Void {
+	extern inline function sendBeginContact():Void {
 		var cc1:ContactCallback = _s1._contactCallback;
 		var cc2:ContactCallback = _s2._contactCallback;
 		if (cc1 == cc2) {
 			cc2 = null; // avoid calling twice
 		}
-		if (cc1 != null) cc1.beginContact(this);
-		if (cc2 != null) cc2.beginContact(this);
+		if (cc1 != null)
+			cc1.beginContact(this);
+		if (cc2 != null)
+			cc2.beginContact(this);
 	}
 
-	@:extern
-	inline function sendEndContact():Void {
+	extern inline function sendEndContact():Void {
 		var cc1:ContactCallback = _s1._contactCallback;
 		var cc2:ContactCallback = _s2._contactCallback;
 		if (cc1 == cc2) {
 			cc2 = null; // avoid calling twice
 		}
-		if (cc1 != null) cc1.endContact(this);
-		if (cc2 != null) cc2.endContact(this);
+		if (cc1 != null)
+			cc1.endContact(this);
+		if (cc2 != null)
+			cc2.endContact(this);
 	}
 
-	@:extern
-	inline function sendPreSolve():Void {
+	// fehm - Trigger Event Callback PostSolve
+	extern inline function sendBeginTriggerContact():Void {
 		var cc1:ContactCallback = _s1._contactCallback;
 		var cc2:ContactCallback = _s2._contactCallback;
 		if (cc1 == cc2) {
 			cc2 = null; // avoid calling twice
 		}
-		if (cc1 != null) cc1.preSolve(this);
-		if (cc2 != null) cc2.preSolve(this);
+		if (cc1 != null)
+			cc1.beginTriggerContact(this);
+		if (cc2 != null)
+			cc2.beginTriggerContact(this);
 	}
 
-	@:extern
-	inline function sendPostSolve():Void {
+	extern inline function sendEndTriggerContact():Void {
 		var cc1:ContactCallback = _s1._contactCallback;
 		var cc2:ContactCallback = _s2._contactCallback;
 		if (cc1 == cc2) {
 			cc2 = null; // avoid calling twice
 		}
-		if (cc1 != null) cc1.postSolve(this);
-		if (cc2 != null) cc2.postSolve(this);
+		if (cc1 != null)
+			cc1.endTriggerContact(this);
+		if (cc2 != null)
+			cc2.endTriggerContact(this);
+	}
+
+	extern inline function sendPreSolve():Void {
+		var cc1:ContactCallback = _s1._contactCallback;
+		var cc2:ContactCallback = _s2._contactCallback;
+		if (cc1 == cc2) {
+			cc2 = null; // avoid calling twice
+		}
+		if (cc1 != null)
+			cc1.preSolve(this);
+		if (cc2 != null)
+			cc2.preSolve(this);
+	}
+
+	extern inline function sendPostSolve():Void {
+		var cc1:ContactCallback = _s1._contactCallback;
+		var cc2:ContactCallback = _s2._contactCallback;
+		if (cc1 == cc2) {
+			cc2 = null; // avoid calling twice
+		}
+		if (cc1 != null)
+			cc1.postSolve(this);
+		if (cc2 != null)
+			cc2.postSolve(this);
 	}
 
 	// --- internal ---
 
-	@:extern
-	public inline function _attach(s1:Shape, s2:Shape, detector:Detector):Void {
+	extern public inline function _attach(s1:Shape, s2:Shape, detector:Detector):Void {
 		_s1 = s1;
 		_s2 = s2;
 		_b1 = s1._rigidBody;
@@ -154,11 +183,15 @@ class Contact {
 		_contactConstraint._attach(s1, s2);
 	}
 
-	@:extern
-	public inline function _detach():Void {
+	extern public inline function _detach():Void {
 		if (_touching) {
 			// touching in the last frame
 			sendEndContact();
+		}
+
+		if (_triggering) {
+			// triggering in the last frame
+			sendEndTriggerContact();
 		}
 
 		detachLinks();
@@ -177,15 +210,19 @@ class Contact {
 	}
 
 	public function _updateManifold():Void {
-		if (_detector == null) return;
+		if (_detector == null)
+			return;
 
 		var ptouching:Bool = _touching;
+		var ptriggering:Bool = _triggering;
 
 		var result:DetectorResult = _detectorResult;
 		_detector.detect(result, _s1._geom, _s2._geom, _s1._transform, _s2._transform, _cachedDetectorData);
 
 		var num:Int = result.numPoints;
 		_touching = num > 0;
+		if (!_touching && _triggering)
+			_triggering = false;
 
 		if (_touching) {
 			// update manifold basis
@@ -208,6 +245,11 @@ class Contact {
 				// one-shot manifold
 				_updater.totalUpdate(result, _b1._transform, _b2._transform);
 			}
+
+			// Fehm - Mark the contact as triggering instead of standard contact
+			if (_s1._rigidBody._isTrigger == true || _s2._rigidBody._isTrigger == true) {
+				_triggering = true;
+			}
 		} else {
 			_manifold._clear();
 		}
@@ -218,6 +260,15 @@ class Contact {
 		if (!_touching && ptouching) {
 			sendEndContact();
 		}
+
+		// Fehm - Send Trigger Events
+		if (_triggering && !ptriggering) {
+			sendBeginTriggerContact();
+		}
+		if (!_triggering && ptriggering) {
+			sendEndTriggerContact();
+		}
+
 		if (_touching) {
 			sendPreSolve();
 		}
@@ -282,5 +333,4 @@ class Contact {
 	public inline function getNext():Contact {
 		return _next;
 	}
-
 }

@@ -1,21 +1,39 @@
-OimoPhysics
+OimoPhysics 1.2.2x (Forked)
 ---
 
 A lightweight 3D physics engine.
 
-## [API Documentation](https://saharan.github.io/OimoPhysics/)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg) 
+
+## INFO
+**This is as special forked version of OimoPhysics, that is adapted to suit the needs of the <a href="https://github.com/JirkaDellOro/FUDGE">FUDGE</a> Project.**
+
+I'm adding only what is needed by that project and if the original creator decides to update i try to merge those changes into this.
+
+The fork is continuing the work of adapting to Haxe 4.0 and is compiled with Haxe 4.1.5. 
+So this Master branch is actually a continuation of the dev branch.
+Currenty Added Features:
+* Trigger/Ghost Rigidbodies - Behaves like any other Rigidbody but does not play any part in collisions. 
+    Trigger Rigidbodies send a special event/callback for triggerEnd/triggerBegin
+    It is done by calculating all necessary collisions but throwing them away in the actual solving step.  <a href="https://github.com/saharan/OimoPhysics/issues/34">Issue #34</a>
+* Fixed Shape can't be removed/readded without error <a href="https://github.com/saharan/OimoPhysics/issues/33">Issue #33</a>
+
+
 
 ## Demos
-<a href="http://el-ement.com/etc/oimo/demos/"><img src="http://el-ement.com/etc/oimo/demos/thumbnail.png"></a>
+<a href="https://el-ement.com/etc/oimo/demos/"><img src="https://el-ement.com/etc/oimo/demos/thumbnail.png"></a>
 * Press `E` or `Q` to change demos
-* Click or tap text to control
+* Click or tap texts on the left to control
 
-## Features
+## Platforms
 * Written in Haxe
 * Exported as JavaScript (see [bin/js/](./bin/js))
-	* Public classes and methods will be exposed through `windwow.OIMO`.
+	* Public classes and methods are exposed through `window.OIMO`.
 	* e.g. `new OIMO.Vec3(1, 2, 3)` to create an instance of `Vec3` class.
-* Rigid body motion types
+* Exported as JavaScript (module) with TypeScript Declaration (see [package.json](./package.json) and [bin/js_modules](./bin/js_modules))
+
+## Features
+* Rigid body with motion types
 	* Dynamic
 	* Static
 	* Kinematic
@@ -35,6 +53,7 @@ A lightweight 3D physics engine.
 	* Prismatic (a.k.a. slider)
 	* Universal
 	* Ragdoll (a.k.a. cone twist, character)
+	* Generic (a.k.a. 6-DoF joint)
 * Breakable joints
 * Constraint solvers
 	* Direct block MLCP solver
@@ -45,15 +64,15 @@ A lightweight 3D physics engine.
 * Collision filterings
 * Collision queries
 	* AABB query
-	* ray casting
-	* convex casting
+	* Ray casting
+	* Convex casting
 
-## Compile JavaScript demos in Haxe
-* Use Haxe 4.0.0 or later
-* main class: `demo.js.DemoJS`
-* Try enabling compiler options if fails
-	* `-D analyzer`
-	* `-D eval-stack`
+## Compilations
+Haxe 4.0.0 or later is required. (recommended: Haxe 4.0.5 or later)
+* Use `build-js.hxml` to compile for JavaScript library.
+* Use `build-js-demos.hxml` to compile JavaScript demos.
+* Use `build-doc.hxml` to generate API documentation. [dox](https://github.com/HaxeFoundation/dox) is required.
+* Use `build-js-ts.hxml` to compile for JavaScript (modules) library with TypeScript declarations. Requires `hxtsdgen` library. Check comments in that file.
 
 ## License
 The MIT License

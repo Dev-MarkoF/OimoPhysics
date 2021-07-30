@@ -1,4 +1,7 @@
 package oimo.dynamics.callback;
+
+import oimo.dynamics.constraint.contact.Manifold;
+import oimo.collision.narrowphase.DetectorResult;
 import oimo.dynamics.Contact;
 
 /**
@@ -13,38 +16,42 @@ import oimo.dynamics.Contact;
  */
 @:interface
 class ContactCallback {
-
 	/**
 	 * Default constructor.
 	 */
-	public function new() {
-	}
+	public function new() {}
 
 	/**
 	 * This is called when two shapes start touching each other. `c` is the contact of
 	 * the two shapes.
 	 */
-	public function beginContact(c:Contact):Void {
-	}
+	public function beginContact(c:Contact):Void {}
 
 	/**
 	 * This is called every frame **before** velocity solver iterations while two shapes
 	 * are touching. `c` is the contact for the two shapes.
 	 */
-	public function preSolve(c:Contact):Void {
-	}
+	public function preSolve(c:Contact):Void {}
 
 	/**
 	 * This is called every frame **after** velocity solver iterations while two shapes
 	 * are touching. `c` is the contact for the two shapes.
 	 */
-	public function postSolve(c:Contact):Void {
-	}
+	public function postSolve(c:Contact):Void {}
 
 	/**
 	 * This is called when two shapes end touching each other. `c` is the contact of
 	 * the two shapes.
 	 */
-	public function endContact(c:Contact):Void {
-	}
+	public function endContact(c:Contact):Void {}
+
+	/**
+	 * Fehm - Trigger Event - Contact Registered but not applied
+	 */
+	public function beginTriggerContact(c:Contact):Void {}
+
+	/**
+	 * Fehm - Trigger Event - Contact Registered but not applied
+	 */
+	public function endTriggerContact(c:Contact):Void {}
 }

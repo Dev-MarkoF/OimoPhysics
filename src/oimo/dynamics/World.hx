@@ -1,4 +1,5 @@
 package oimo.dynamics;
+
 import haxe.ds.*;
 import oimo.collision.*;
 import oimo.collision.broadphase.*;
@@ -61,16 +62,16 @@ class World {
 	 * gravitational acceleration `gravity`.
 	 */
 	public function new(broadPhaseType:Int = BroadPhaseType._BVH, gravity:Vec3 = null) {
-		switch(broadPhaseType) {
-		case BroadPhaseType._BRUTE_FORCE:
-			_broadPhase = new BruteForceBroadPhase();
-		case BroadPhaseType._BVH:
-			_broadPhase = new BvhBroadPhase();
-
+		switch (broadPhaseType) {
+			case BroadPhaseType._BRUTE_FORCE:
+				_broadPhase = new BruteForceBroadPhase();
+			case BroadPhaseType._BVH:
+				_broadPhase = new BvhBroadPhase();
 		}
 		_contactManager = new ContactManager(_broadPhase);
 
-		if (gravity == null) gravity = new Vec3(0, -9.80665, 0);
+		if (gravity == null)
+			gravity = new Vec3(0, -9.80665, 0);
 		_gravity = gravity.clone();
 
 		_rigidBodyList = null;
@@ -98,7 +99,6 @@ class World {
 		_timeStep = new TimeStep();
 
 		_pool = new Pool();
-
 
 		_shapeIdCount = 0;
 	}
@@ -167,7 +167,6 @@ class World {
 				b._addedToIsland = false;
 			});
 
-
 			// clear forces and torques
 			b = _rigidBodyList;
 			M.list_foreach(b, _next, {
@@ -204,8 +203,9 @@ class World {
 				// ignore if not touching
 				var cc:ContactConstraint = cl._contact._contactConstraint;
 				var ccs:ConstraintSolver = cl._contact._contactConstraint._solver;
-				if (cc.isTouching() && !ccs._addedToIsland) {
 
+				// fehm - Ignore if Trigger contact to be island base
+				if (!cl._contact._triggering && cc.isTouching() && !ccs._addedToIsland) {
 					// add to constraint array (to clear island flag later)
 					if (_solversInIslands.length == _numSolversInIslands) {
 						M.array_expand(_solversInIslands, _numSolversInIslands);
@@ -230,7 +230,6 @@ class World {
 				var j:Joint = jl._joint;
 				var js:ConstraintSolver = j._solver;
 				if (!js._addedToIsland) {
-
 					// add to constraint array (to clear island flag later)
 					if (_solversInIslands.length == _numSolversInIslands) {
 						M.array_expand(_solversInIslands, _numSolversInIslands);
@@ -251,16 +250,14 @@ class World {
 		}
 	}
 
-	@:extern
-	public inline function _addShape(shape:Shape):Void {
+	extern public inline function _addShape(shape:Shape):Void {
 		shape._proxy = _broadPhase.createProxy(shape, shape._aabb);
 		shape._id = _shapeIdCount++;
 
 		_numShapes++;
 	}
 
-	@:extern
-	public inline function _removeShape(shape:Shape):Void {
+	extern public inline function _removeShape(shape:Shape):Void {
 		_broadPhase.destroyProxy(shape._proxy);
 		shape._proxy = null;
 		shape._id = -1;
@@ -285,7 +282,8 @@ class World {
 	}
 
 	function _drawBvhNode(d:DebugDraw, node:BvhNode, level:Int, color:Vec3):Void {
-		if (node == null) return;
+		if (node == null)
+			return;
 		if (level >= d.drawBvhMinLevel && level <= d.drawBvhMaxLevel) {
 			var min:Vec3 = _pool.vec3();
 			var max:Vec3 = _pool.vec3();
@@ -316,17 +314,11 @@ class World {
 			M.list_foreach(s, _next, {
 				if (isDynamic) {
 					if ((s._id & 1) == 0) {
-						shapeColor =
-							if (r._sleeping) style.sleepingShapeColor1
-							else if (r._sleepTime > Setting.sleepingTimeThreshold) style.sleepyShapeColor1
-							else style.shapeColor1
-						;
+						shapeColor = if (r._sleeping) style.sleepingShapeColor1 else if (r._sleepTime > Setting.sleepingTimeThreshold)
+							style.sleepyShapeColor1 else style.shapeColor1;
 					} else {
-						shapeColor =
-							if (r._sleeping) style.sleepingShapeColor2
-							else if (r._sleepTime > Setting.sleepingTimeThreshold) style.sleepyShapeColor2
-							else style.shapeColor2
-						;
+						shapeColor = if (r._sleeping) style.sleepingShapeColor2 else if (r._sleepTime > Setting.sleepingTimeThreshold)
+							style.sleepyShapeColor2 else style.shapeColor2;
 					}
 				}
 				if (d.drawShapes) {
@@ -339,60 +331,52 @@ class World {
 		});
 	}
 
-	@:extern
-	inline function _drawBasis(d:DebugDraw, tf:Transform):Void {
+	extern inline function _drawBasis(d:DebugDraw, tf:Transform):Void {
 		var style:DebugDrawStyle = d.style;
 		d.basis(tf, style.basisLength, style.basisColorX, style.basisColorY, style.basisColorZ);
 	}
 
-	@:extern
-	inline function _drawShape(d:DebugDraw, geom:Geometry, tf:Transform, color:Vec3):Void {
+	extern inline function _drawShape(d:DebugDraw, geom:Geometry, tf:Transform, color:Vec3):Void {
 		switch (geom._type) {
-		case GeometryType._SPHERE:
-			_drawSphere(d, cast geom, tf, color);
-		case GeometryType._BOX:
-			_drawBox(d, cast geom, tf, color);
-		case GeometryType._CYLINDER:
-			_drawCylinder(d, cast geom, tf, color);
-		case GeometryType._CONE:
-			_drawCone(d, cast geom, tf, color);
-		case GeometryType._CAPSULE:
-			_drawCapsule(d, cast geom, tf, color);
-		case GeometryType._CONVEX_HULL:
-			_drawConvexHull(d, cast geom, tf, color);
+			case GeometryType._SPHERE:
+				_drawSphere(d, cast geom, tf, color);
+			case GeometryType._BOX:
+				_drawBox(d, cast geom, tf, color);
+			case GeometryType._CYLINDER:
+				_drawCylinder(d, cast geom, tf, color);
+			case GeometryType._CONE:
+				_drawCone(d, cast geom, tf, color);
+			case GeometryType._CAPSULE:
+				_drawCapsule(d, cast geom, tf, color);
+			case GeometryType._CONVEX_HULL:
+				_drawConvexHull(d, cast geom, tf, color);
 		}
 	}
 
-	@:extern
-	inline function _drawSphere(d:DebugDraw, g:SphereGeometry, tf:Transform, color:Vec3):Void {
+	extern inline function _drawSphere(d:DebugDraw, g:SphereGeometry, tf:Transform, color:Vec3):Void {
 		d.sphere(tf, g._radius, color);
 	}
 
-	@:extern
-	inline function _drawBox(d:DebugDraw, g:BoxGeometry, tf:Transform, color:Vec3):Void {
+	extern inline function _drawBox(d:DebugDraw, g:BoxGeometry, tf:Transform, color:Vec3):Void {
 		var hx:Vec3 = _pool.vec3();
 		M.vec3_toVec3(hx, g._halfExtents);
 		d.box(tf, hx, color);
 		_pool.dispose(hx);
 	}
 
-	@:extern
-	inline function _drawCylinder(d:DebugDraw, g:CylinderGeometry, tf:Transform, color:Vec3):Void {
+	extern inline function _drawCylinder(d:DebugDraw, g:CylinderGeometry, tf:Transform, color:Vec3):Void {
 		d.cylinder(tf, g._radius, g._halfHeight, color);
 	}
 
-	@:extern
-	inline function _drawCone(d:DebugDraw, g:ConeGeometry, tf:Transform, color:Vec3):Void {
+	extern inline function _drawCone(d:DebugDraw, g:ConeGeometry, tf:Transform, color:Vec3):Void {
 		d.cone(tf, g._radius, g._halfHeight, color);
 	}
 
-	@:extern
-	inline function _drawCapsule(d:DebugDraw, g:CapsuleGeometry, tf:Transform, color:Vec3):Void {
+	extern inline function _drawCapsule(d:DebugDraw, g:CapsuleGeometry, tf:Transform, color:Vec3):Void {
 		d.capsule(tf, g._radius, g._halfHeight, color);
 	}
 
-	@:extern
-	inline function _drawConvexHull(d:DebugDraw, g:ConvexHullGeometry, tf:Transform, color:Vec3):Void {
+	extern inline function _drawConvexHull(d:DebugDraw, g:ConvexHullGeometry, tf:Transform, color:Vec3):Void {
 		var n:Int = g._numVertices;
 		var v1:Vec3 = _pool.vec3();
 		var v2:Vec3 = _pool.vec3();
@@ -453,8 +437,7 @@ class World {
 		_pool.dispose(o);
 	}
 
-	@:extern
-	inline function _drawAabb(d:DebugDraw, aabb:Aabb, color:Vec3):Void {
+	extern inline function _drawAabb(d:DebugDraw, aabb:Aabb, color:Vec3):Void {
 		var min:Vec3 = _pool.vec3();
 		var max:Vec3 = _pool.vec3();
 		M.vec3_toVec3(min, aabb._min);
@@ -490,8 +473,7 @@ class World {
 		}
 	}
 
-	@:extern
-	inline function _drawContactPoint(d:DebugDraw, c:ContactConstraint, p:ManifoldPoint) {
+	extern inline function _drawContactPoint(d:DebugDraw, c:ContactConstraint, p:ManifoldPoint) {
 		var style:DebugDrawStyle = d.style;
 		var tf1:Transform = c._s1._transform;
 		var tf2:Transform = c._s2._transform;
@@ -514,14 +496,14 @@ class World {
 		} else if (p._warmStarted) {
 			var color:Vec3;
 			switch (p._id & 3) {
-			case 0:
-				color = style.contactColor;
-			case 1:
-				color = style.contactColor2;
-			case 2:
-				color = style.contactColor3;
-			case _:
-				color = style.contactColor4;
+				case 0:
+					color = style.contactColor;
+				case 1:
+					color = style.contactColor2;
+				case 2:
+					color = style.contactColor3;
+				case _:
+					color = style.contactColor4;
 			}
 			d.point(pos1, color);
 			d.point(pos2, color);
@@ -549,8 +531,7 @@ class World {
 		_pool.dispose(binormal);
 	}
 
-	@:extern
-	inline function _drawPair(d:DebugDraw, c:Contact, color:Vec3):Void {
+	extern inline function _drawPair(d:DebugDraw, c:Contact, color:Vec3):Void {
 		var v1:Vec3 = _pool.vec3();
 		var v2:Vec3 = _pool.vec3();
 		M.vec3_toVec3(v1, c._s1._transform._position);
@@ -560,8 +541,7 @@ class World {
 		_pool.dispose(v2);
 	}
 
-	@:extern
-	inline function _drawJoint(d:DebugDraw, j:Joint):Void {
+	extern inline function _drawJoint(d:DebugDraw, j:Joint):Void {
 		var p1:Vec3 = _pool.vec3();
 		var p2:Vec3 = _pool.vec3();
 		M.vec3_toVec3(p1, j._b1._transform._position);
@@ -589,18 +569,20 @@ class World {
 
 		if (d.drawJointLimits) {
 			switch (j._type) {
-			case JointType._SPHERICAL:
-				// draw nothing more
-			case JointType._REVOLUTE:
-				_drawRevolute(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
-			case JointType._CYLINDRICAL:
-				_drawCylindrical(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
-			case JointType._PRISMATIC:
-				_drawPrismatic(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
-			case JointType._UNIVERSAL:
-				_drawUniversal(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
-			case JointType._RAGDOLL:
-				_drawRagdoll(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
+				case JointType._SPHERICAL:
+				// draw nothing here
+				case JointType._REVOLUTE:
+					_drawRevolute(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
+				case JointType._CYLINDRICAL:
+					_drawCylindrical(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
+				case JointType._PRISMATIC:
+					_drawPrismatic(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
+				case JointType._UNIVERSAL:
+					_drawUniversal(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
+				case JointType._RAGDOLL:
+					_drawRagdoll(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
+				case JointType._GENERIC:
+					_drawGeneric(d, cast j, anchor1, anchor2, basisX1, basisY1, basisZ1, basisX2, basisY2, basisZ2);
 			}
 		}
 
@@ -618,8 +600,8 @@ class World {
 		_pool.dispose(basisZ2);
 	}
 
-	@:extern
-	inline function _drawRevolute(d:DebugDraw, j:RevoluteJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3, basisY2:Vec3, basisZ2:Vec3):Void {
+	extern inline function _drawRevolute(d:DebugDraw, j:RevoluteJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3,
+			basisY2:Vec3, basisZ2:Vec3):Void {
 		var radius:Float = d.style.jointRotationalConstraintRadius;
 		var color:Vec3 = d.style.jointLineColor;
 		var lm:RotationalLimitMotor = j._lm;
@@ -627,8 +609,8 @@ class World {
 		_drawRotationalLimit(d, anchor1, basisY1, basisZ1, basisY2, radius, lm.lowerLimit, lm.upperLimit, color);
 	}
 
-	@:extern
-	inline function _drawCylindrical(d:DebugDraw, j:CylindricalJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3, basisY2:Vec3, basisZ2:Vec3):Void {
+	extern inline function _drawCylindrical(d:DebugDraw, j:CylindricalJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3,
+			basisX2:Vec3, basisY2:Vec3, basisZ2:Vec3):Void {
 		var radius:Float = d.style.jointRotationalConstraintRadius;
 		var color:Vec3 = d.style.jointLineColor;
 		var rlm:RotationalLimitMotor = j._rotLm;
@@ -638,8 +620,8 @@ class World {
 		_drawTranslationalLimit(d, anchor1, basisX1, tlm.lowerLimit, tlm.upperLimit, color);
 	}
 
-	@:extern
-	inline function _drawPrismatic(d:DebugDraw, j:PrismaticJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3, basisY2:Vec3, basisZ2:Vec3):Void {
+	extern inline function _drawPrismatic(d:DebugDraw, j:PrismaticJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3,
+			basisY2:Vec3, basisZ2:Vec3):Void {
 		var radius:Float = d.style.jointRotationalConstraintRadius;
 		var color:Vec3 = d.style.jointLineColor;
 		var lm:TranslationalLimitMotor = j._lm;
@@ -647,8 +629,8 @@ class World {
 		_drawTranslationalLimit(d, anchor1, basisX1, lm.lowerLimit, lm.upperLimit, color);
 	}
 
-	@:extern
-	inline function _drawUniversal(d:DebugDraw, j:UniversalJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3, basisY2:Vec3, basisZ2:Vec3):Void {
+	extern inline function _drawUniversal(d:DebugDraw, j:UniversalJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3,
+			basisY2:Vec3, basisZ2:Vec3):Void {
 		var radius:Float = d.style.jointRotationalConstraintRadius;
 		var color:Vec3 = d.style.jointLineColor;
 		var lm1:RotationalLimitMotor = j._lm1;
@@ -658,8 +640,8 @@ class World {
 		_drawRotationalLimit(d, anchor2, basisX2, basisY2, basisX2, radius, lm2.lowerLimit - j._angleZ, lm2.upperLimit - j._angleZ, color);
 	}
 
-	@:extern
-	inline function _drawRagdoll(d:DebugDraw, j:RagdollJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3, basisY2:Vec3, basisZ2:Vec3):Void {
+	extern inline function _drawRagdoll(d:DebugDraw, j:RagdollJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3,
+			basisY2:Vec3, basisZ2:Vec3):Void {
 		var radius:Float = d.style.jointRotationalConstraintRadius;
 		var color:Vec3 = d.style.jointLineColor;
 		var lm:RotationalLimitMotor = j._twistLm;
@@ -672,16 +654,38 @@ class World {
 		_pool.dispose(to);
 	}
 
+	extern inline function _drawGeneric(d:DebugDraw, j:GenericJoint, anchor1:Vec3, anchor2:Vec3, basisX1:Vec3, basisY1:Vec3, basisZ1:Vec3, basisX2:Vec3,
+			basisY2:Vec3, basisZ2:Vec3):Void {
+		var radius:Float = d.style.jointRotationalConstraintRadius;
+		var color:Vec3 = d.style.jointLineColor;
+		var txlm:TranslationalLimitMotor = j._translLms[0];
+		var tylm:TranslationalLimitMotor = j._translLms[1];
+		var tzlm:TranslationalLimitMotor = j._translLms[2];
+		var rxlm:RotationalLimitMotor = j._rotLms[0];
+		var rylm:RotationalLimitMotor = j._rotLms[1];
+		var rzlm:RotationalLimitMotor = j._rotLms[2];
+		_drawTranslationalLimit3D(d, anchor1, basisX1, basisY1, basisZ1, txlm, tylm, tzlm, color);
+
+		var rotYAxis:Vec3 = _pool.vec3();
+		M.vec3_toVec3(rotYAxis, j._axisY);
+		var rotYBasisX:Vec3 = _pool.vec3().copyFrom(basisX1);
+		var rotYBasisY:Vec3 = _pool.vec3().copyFrom(basisX1).crossEq(rotYAxis);
+
+		_drawRotationalLimit(d, anchor2, basisY1, basisZ1, basisY1, radius, j._angleX - rxlm.upperLimit, j._angleX - rxlm.lowerLimit, color);
+		_drawRotationalLimit(d, anchor2, rotYBasisX, rotYBasisY, rotYBasisX, radius, rylm.lowerLimit - j._angleY, rylm.upperLimit - j._angleY, color);
+		_drawRotationalLimit(d, anchor2, basisX2, basisY2, basisX2, radius, rzlm.lowerLimit - j._angleZ, rzlm.upperLimit - j._angleZ, color);
+	}
+
 	function _drawRotationalLimit(d:DebugDraw, center:Vec3, ex:Vec3, ey:Vec3, needle:Vec3, radius:Float, min:Float, max:Float, color:Vec3):Void {
 		if (min != max) {
 			var to:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(needle, radius);
 			d.line(center, to, color);
 			_pool.dispose(to);
-		}
-		if (min > max) {
-			d.ellipse(center, ex, ey, radius, radius, color);
-		} else {
-			d.arc(center, ex, ey, radius, radius, min, max, true, color);
+			if (min > max) {
+				d.ellipse(center, ex, ey, radius, radius, color);
+			} else {
+				d.arc(center, ex, ey, radius, radius, min, max, true, color);
+			}
 		}
 	}
 
@@ -693,6 +697,49 @@ class World {
 			_pool.dispose(lower);
 			_pool.dispose(upper);
 		}
+	}
+
+	function _drawTranslationalLimit3D(d:DebugDraw, center:Vec3, ex:Vec3, ey:Vec3, ez:Vec3, xlm:TranslationalLimitMotor, ylm:TranslationalLimitMotor,
+			zlm:TranslationalLimitMotor, color:Vec3):Void {
+		var minx:Float = xlm.lowerLimit;
+		var maxx:Float = xlm.upperLimit;
+		var miny:Float = ylm.lowerLimit;
+		var maxy:Float = ylm.upperLimit;
+		var minz:Float = zlm.lowerLimit;
+		var maxz:Float = zlm.upperLimit;
+		var lower:Vec3 = _pool.vec3();
+		var upper:Vec3 = _pool.vec3();
+		var xyz:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, minx).addScaledEq(ey, miny).addScaledEq(ez, minz);
+		var xyZ:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, minx).addScaledEq(ey, miny).addScaledEq(ez, maxz);
+		var xYz:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, minx).addScaledEq(ey, maxy).addScaledEq(ez, minz);
+		var xYZ:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, minx).addScaledEq(ey, maxy).addScaledEq(ez, maxz);
+		var Xyz:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, maxx).addScaledEq(ey, miny).addScaledEq(ez, minz);
+		var XyZ:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, maxx).addScaledEq(ey, miny).addScaledEq(ez, maxz);
+		var XYz:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, maxx).addScaledEq(ey, maxy).addScaledEq(ez, minz);
+		var XYZ:Vec3 = _pool.vec3().copyFrom(center).addScaledEq(ex, maxx).addScaledEq(ey, maxy).addScaledEq(ez, maxz);
+		// x
+		d.line(xyz, Xyz, color);
+		d.line(xYz, XYz, color);
+		d.line(xyZ, XyZ, color);
+		d.line(xYZ, XYZ, color);
+		// y
+		d.line(xyz, xYz, color);
+		d.line(Xyz, XYz, color);
+		d.line(xyZ, xYZ, color);
+		d.line(XyZ, XYZ, color);
+		// z
+		d.line(xyz, xyZ, color);
+		d.line(Xyz, XyZ, color);
+		d.line(xYz, xYZ, color);
+		d.line(XYz, XYZ, color);
+		_pool.dispose(xyz);
+		_pool.dispose(xyZ);
+		_pool.dispose(xYz);
+		_pool.dispose(xYZ);
+		_pool.dispose(Xyz);
+		_pool.dispose(XyZ);
+		_pool.dispose(XYz);
+		_pool.dispose(XYZ);
 	}
 
 	function _drawEllipseOnSphere(d:DebugDraw, center:Vec3, normal:Vec3, x:Vec3, y:Vec3, radiansX:Float, radiansY:Float, radius:Float, color:Vec3):Void {
@@ -749,6 +796,7 @@ class World {
 
 		Performance.totalTime = M.profile({
 			_updateContacts();
+			// FEHM - here the manifolds of triggers must be cleared? Detached etc.
 			_solveIslands();
 		});
 	}
@@ -986,7 +1034,6 @@ class World {
 	public inline function setGravity(gravity:Vec3):Void {
 		_gravity.copyFrom(gravity);
 	}
-
 }
 
 // ray cast wrapper (broadphase -> world)
@@ -1039,7 +1086,8 @@ private class ConvexCastWrapper extends BroadPhaseProxyCallback {
 	override public function process(proxy:Proxy):Void {
 		var shape:Shape = cast proxy.userData;
 		var type:Int = shape._geom._type;
-		if (type < GeometryType._CONVEX_MIN || type > GeometryType._CONVEX_MAX) return;
+		if (type < GeometryType._CONVEX_MIN || type > GeometryType._CONVEX_MAX)
+			return;
 
 		var geom:ConvexGeometry = cast shape._geom;
 		if (GjkEpa.getInstance().convexCast(convex, geom, begin, shape._transform, translation, zero, rayCastHit)) {

@@ -1,4 +1,5 @@
 package oimo.dynamics.constraint.contact;
+
 import oimo.collision.narrowphase.*;
 import oimo.common.*;
 import oimo.dynamics.*;
@@ -49,8 +50,7 @@ class ContactConstraint {
 
 	// --- internal ---
 
-	@:extern
-	public inline function _attach(s1:Shape, s2:Shape):Void {
+	extern public inline function _attach(s1:Shape, s2:Shape):Void {
 		_s1 = s1;
 		_s2 = s2;
 		_b1 = _s1._rigidBody;
@@ -59,8 +59,7 @@ class ContactConstraint {
 		_tf2 = _b2._transform;
 	}
 
-	@:extern
-	public inline function _detach():Void {
+	extern public inline function _detach():Void {
 		_s1 = null;
 		_s2 = null;
 		_b1 = null;
@@ -72,6 +71,10 @@ class ContactConstraint {
 	public function _getVelocitySolverInfo(timeStep:TimeStep, info:ContactSolverInfo):Void {
 		info.b1 = _b1;
 		info.b2 = _b2;
+
+		// fehm ignore trigger
+		if (_b1._isTrigger || _b2._isTrigger)
+			return;
 
 		var normal:IVec3;
 		var tangent:IVec3;
@@ -132,10 +135,9 @@ class ContactConstraint {
 
 			// compute relative velocity
 			j = row.jacobianN;
-			var rvn:Float =
-				(M.vec3_dot(j.lin1, _b1._vel) + M.vec3_dot(j.ang1, _b1._angVel)) -
-				(M.vec3_dot(j.lin2, _b2._vel) + M.vec3_dot(j.ang2, _b2._angVel))
-			;
+			var rvn:Float = (M.vec3_dot(j.lin1, _b1._vel)
+				+ M.vec3_dot(j.ang1, _b1._angVel))
+				- (M.vec3_dot(j.lin2, _b2._vel) + M.vec3_dot(j.ang2, _b2._angVel));
 
 			// disable bounce for warm-started contacts
 			if (rvn < -Setting.contactEnableBounceThreshold && !p._warmStarted) {
@@ -148,7 +150,8 @@ class ContactConstraint {
 			if (_positionCorrectionAlgorithm == PositionCorrectionAlgorithm.BAUMGARTE) {
 				if (p._depth > Setting.linearSlop) {
 					var minRhs:Float = (p._depth - Setting.linearSlop) * Setting.velocityBaumgarte * timeStep.invDt;
-					if (row.rhs < minRhs) row.rhs = minRhs;
+					if (row.rhs < minRhs)
+						row.rhs = minRhs;
 				}
 			}
 
@@ -164,6 +167,10 @@ class ContactConstraint {
 	public function _getPositionSolverInfo(info:ContactSolverInfo):Void {
 		info.b1 = _b1;
 		info.b2 = _b2;
+
+		// fehm ignore trigger
+		if (_b1._isTrigger || _b2._isTrigger)
+			return;
 
 		var normal:IVec3;
 		M.vec3_assign(normal, _manifold._normal);
@@ -229,9 +236,9 @@ class ContactConstraint {
 	 */
 	public function isTouching():Bool {
 		for (i in 0..._manifold._numPoints) {
-			if (_manifold._points[i]._depth >= 0) return true;
+			if (_manifold._points[i]._depth >= 0)
+				return true;
 		}
 		return false;
 	}
-
 }

@@ -1,4 +1,5 @@
 package oimo.dynamics;
+
 import oimo.collision.broadphase.*;
 import oimo.collision.geometry.*;
 import oimo.collision.narrowphase.*;
@@ -125,6 +126,7 @@ class ContactManager {
 					_destroyContact(c);
 					break;
 				}
+
 				// the proxies are overlapping, but AABBs might be separated
 				var aabbOverlapping:Bool = M.aabb_overlap(aabb1._min, aabb1._max, aabb2._min, aabb2._max);
 				// needs narrow-phase collision detection if AABBs are overlapping
@@ -148,10 +150,7 @@ class ContactManager {
 		}
 
 		// collision filtering
-		if (
-			s1._collisionGroup & s2._collisionMask == 0 ||
-			s2._collisionGroup & s1._collisionMask == 0
-		) {
+		if (s1._collisionGroup & s2._collisionMask == 0 || s2._collisionGroup & s1._collisionMask == 0) {
 			return false;
 		}
 
@@ -193,8 +192,7 @@ class ContactManager {
 		});
 	}
 
-	@:extern
-	public inline function _updateManifolds():Void {
+	extern public inline function _updateManifolds():Void {
 		var c:Contact = _contactList;
 		M.list_foreach(c, _next, {
 			if (!c._shouldBeSkipped) {
@@ -203,8 +201,7 @@ class ContactManager {
 		});
 	}
 
-	@:extern
-	public inline function _destroyContact(contact:Contact):Void {
+	extern public inline function _destroyContact(contact:Contact):Void {
 		M.list_remove(_contactList, _contactListLast, _prev, _next, contact);
 		contact._detach();
 
@@ -229,5 +226,4 @@ class ContactManager {
 	public inline function getContactList():Contact {
 		return _contactList;
 	}
-
 }
