@@ -953,7 +953,7 @@ class RigidBody {
 	/**
 	 * Returns the number of the contact lists the rigid body is involved.
 	 */
-	public inline function getNumContectLinks():Int { // fehm - Should be changed to Contact instead of Contect, but breaing Change
+	public inline function getNumContactLinks():Int { // fehm - Should be changed to Contact instead of Contect, but breaking Change
 		return _numContactLinks;
 	}
 

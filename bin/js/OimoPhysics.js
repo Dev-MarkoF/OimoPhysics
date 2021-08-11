@@ -624,7 +624,7 @@ export_js_Export.main = function() {
 			oimo_dynamics_rigidbody_RigidBody.prototype["getWorldVectorTo"] = oimo_dynamics_rigidbody_RigidBody.prototype.getWorldVectorTo;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getNumShapes"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumShapes;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getShapeList"] = oimo_dynamics_rigidbody_RigidBody.prototype.getShapeList;
-			oimo_dynamics_rigidbody_RigidBody.prototype["getNumContectLinks"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumContectLinks;
+			oimo_dynamics_rigidbody_RigidBody.prototype["getNumContactLinks"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumContactLinks;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getContactLinkList"] = oimo_dynamics_rigidbody_RigidBody.prototype.getContactLinkList;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getNumJointLinks"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumJointLinks;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getJointLinkList"] = oimo_dynamics_rigidbody_RigidBody.prototype.getJointLinkList;
@@ -15826,7 +15826,6 @@ oimo_dynamics_Contact.prototype = {
 			}
 		}
 		if(this._triggering && !ptriggering) {
-			console.log("src/oimo/dynamics/Contact.hx:124:","BeginTrigger");
 			var cc1 = this._s1._contactCallback;
 			var cc2 = this._s2._contactCallback;
 			if(cc1 == cc2) {
@@ -15840,7 +15839,6 @@ oimo_dynamics_Contact.prototype = {
 			}
 		}
 		if(!this._triggering && ptriggering) {
-			console.log("src/oimo/dynamics/Contact.hx:137:","endTrigger");
 			var cc1 = this._s1._contactCallback;
 			var cc2 = this._s2._contactCallback;
 			if(cc1 == cc2) {
@@ -16068,7 +16066,6 @@ oimo_dynamics_ContactManager.prototype = {
 						}
 					}
 					if(c._triggering) {
-						console.log("src/oimo/dynamics/Contact.hx:137:","endTrigger");
 						var cc11 = c._s1._contactCallback;
 						var cc21 = c._s2._contactCallback;
 						if(cc11 == cc21) {
@@ -16182,7 +16179,6 @@ oimo_dynamics_ContactManager.prototype = {
 						}
 					}
 					if(c._triggering) {
-						console.log("src/oimo/dynamics/Contact.hx:137:","endTrigger");
 						var cc13 = c._s1._contactCallback;
 						var cc23 = c._s2._contactCallback;
 						if(cc13 == cc23) {
@@ -18696,7 +18692,6 @@ oimo_dynamics_World.prototype = {
 						}
 					}
 					if(c._triggering) {
-						console.log("src/oimo/dynamics/Contact.hx:137:","endTrigger");
 						var cc11 = c._s1._contactCallback;
 						var cc21 = c._s2._contactCallback;
 						if(cc11 == cc21) {
@@ -36756,7 +36751,7 @@ oimo_dynamics_rigidbody_RigidBody.prototype = {
 	,getShapeList: function() {
 		return this._shapeList;
 	}
-	,getNumContectLinks: function() {
+	,getNumContactLinks: function() {
 		return this._numContactLinks;
 	}
 	,getContactLinkList: function() {
@@ -36971,7 +36966,6 @@ oimo_dynamics_rigidbody_RigidBody.prototype = {
 						}
 					}
 					if(c._triggering) {
-						console.log("src/oimo/dynamics/Contact.hx:137:","endTrigger");
 						var cc11 = c._s1._contactCallback;
 						var cc21 = c._s2._contactCallback;
 						if(cc11 == cc21) {

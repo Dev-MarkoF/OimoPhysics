@@ -3743,7 +3743,7 @@ declare namespace OIMO {
         /**
          * Returns the number of the contact lists the rigid body is involved.
          */
-        getNumContectLinks(): number;
+        getNumContactLinks(): number;
         /**
          * Returns the list of the contact links the rigid body is involved.
          */

@@ -736,7 +736,7 @@ class Export {
 			oimo_dynamics_rigidbody_RigidBody.prototype["getWorldVectorTo"] = oimo_dynamics_rigidbody_RigidBody.prototype.getWorldVectorTo;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getNumShapes"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumShapes;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getShapeList"] = oimo_dynamics_rigidbody_RigidBody.prototype.getShapeList;
-			oimo_dynamics_rigidbody_RigidBody.prototype["getNumContectLinks"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumContectLinks;
+			oimo_dynamics_rigidbody_RigidBody.prototype["getNumContactLinks"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumContactLinks;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getContactLinkList"] = oimo_dynamics_rigidbody_RigidBody.prototype.getContactLinkList;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getNumJointLinks"] = oimo_dynamics_rigidbody_RigidBody.prototype.getNumJointLinks;
 			oimo_dynamics_rigidbody_RigidBody.prototype["getJointLinkList"] = oimo_dynamics_rigidbody_RigidBody.prototype.getJointLinkList;
