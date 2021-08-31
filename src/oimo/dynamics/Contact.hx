@@ -249,6 +249,11 @@ class Contact {
 			// Fehm - Mark the contact as triggering instead of standard contact
 			if (_s1._rigidBody._isTrigger == true || _s2._rigidBody._isTrigger == true) {
 				_triggering = true;
+
+				// var firstObj = cast _s1.userData;
+				// var secondObj = cast _s2.userData;
+				// if (firstObj.getContainer().name == "Trigger_Button" || secondObj.getContainer().name == "Trigger_Button")
+				// 	trace("Happening Between: ", firstObj.getContainer().name, " / ", secondObj.getContainer().name);
 			}
 		} else {
 			_manifold._clear();

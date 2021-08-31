@@ -46,6 +46,8 @@ class ContactManager {
 					s2 = cast pp._p1.userData;
 				}
 				// collision filtering
+				// fehm - Trigger should still be checked even if static/kinematic
+				//  && (!s1._rigidBody._isTrigger && !s2._rigidBody._isTrigger)
 				if (!shouldCollide(s1, s2)) {
 					break;
 				}
@@ -144,7 +146,10 @@ class ContactManager {
 			return false;
 		}
 
-		if (r1._type != RigidBodyType._DYNAMIC && r2._type != RigidBodyType._DYNAMIC) {
+		// fehm - And neither of the shapes is a trigger
+		if (r1._type != RigidBodyType._DYNAMIC
+			&& r2._type != RigidBodyType._DYNAMIC
+			&& (!s1._rigidBody._isTrigger && !s2._rigidBody._isTrigger)) {
 			// none of the two bodies are dynamic
 			return false;
 		}
